@@ -143,7 +143,7 @@ class KiteApp:
                                        headers=self.headers).json()["data"]["order_id"]
         return order_id
     
-    #By Rishan
+
     def holdings(self):
         holdings = self.session.get(f"{self.root_url}/portfolio/holdings", headers=self.headers).json()["data"]
         return holdings
@@ -153,4 +153,3 @@ class KiteApp:
         return funds
     
 
-    ####

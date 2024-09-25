@@ -203,10 +203,22 @@ def final_screening_testing(kite,screened_stocks):
     final_screened_stocks=[]
     sma_20_dict=sma20_vol(kite,screened_stocks)[0]
     for i in screened_stocks_tv:
-        daily=get_data(i,"Daily")
-        daily_volume=daily["volume"] # type: ignore
-        if daily_volume/sma_20_dict[i]>3:
-            final_screened_stocks.append(i)
+        try:
+            daily=get_data(i,"Daily")
+            daily_volume=daily["volume"] # type: ignore
+            if daily_volume/sma_20_dict[i]>1.25:
+                final_screened_stocks.append(i)
+        except KeyError as e:
+            with open(r"important_data\tv_zerodha_issue.txt") as file:
+                problems=eval(file.read())
+            if i in problems:
+                telegram_send(f"Problem with {i}, exception: {e}")
+                problems.append(i)
+                with open(r"important_data\tv_zerodha_issue.txt","w") as file:
+                    file.write(problems)
+            continue
+
+
     return final_screened_stocks
 
 
@@ -256,8 +268,8 @@ def final_screening(kite):
     with open(r"logs\unscreened_stocks.txt",'a+') as file:
         data= f"{datetime.now()} : {not_screened_stocks}\n"
         file.write(data)
-    final_screened_stocks=final_screening_testing(kite,screened_stocks=screened_stocks)
-    final_screened_stocks_after_bb=final_screening_bb(kite=kite,stocks=final_screened_stocks)
+    # final_screened_stocks=final_screening_testing(kite,screened_stocks=screened_stocks)
+    final_screened_stocks_after_bb=final_screening_bb(kite=kite,stocks=screened_stocks)
 
     print(f"final_screened_stocks: {final_screened_stocks_after_bb}")
     return final_screened_stocks_after_bb

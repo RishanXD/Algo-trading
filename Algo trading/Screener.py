@@ -9,6 +9,14 @@ def get_data(stock_name,time):
             interval=Interval.INTERVAL_1_MINUTE 
         )
         return(stock.get_analysis().indicators)# type: ignore
+    if time=="15m":
+        stock = TA_Handler(
+            symbol=stock_name,
+            screener="india",
+            exchange="NSE",
+            interval=Interval.INTERVAL_15_MINUTES 
+        )
+        return(stock.get_analysis().indicators)# type: ignore
 
     if time=="1h":
         stock = TA_Handler(
@@ -101,12 +109,12 @@ Nifty = [f"NSE:{symbol}" for symbol in Nifty]
 def screening():
     Screened=[]
     Not_Screened=[]
-    start=time.time()
     # Fetch multiple analyses for the Nifty stocks
     print("Getting data...")
     daily_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_DAY , symbols=Nifty)
     weekly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_WEEK , symbols=Nifty)
-    monthly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_MONTH , symbols=Nifty)
+    monthly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_MONTH , symbols=Nifty)\
+    
     # print("\033[A\033[K", end="") # this code deletes previous printed line and prints the new line in place of it
     
     for stock in Nifty:
@@ -170,6 +178,5 @@ def screening():
         except:
             stock=stock.replace("NSE:", "")
             Not_Screened.append(stock)
-    end=time.time()
-    print("Time taken:",round(end-start,2),"seconds")
+
     return Screened,Not_Screened

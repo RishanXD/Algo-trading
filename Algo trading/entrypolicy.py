@@ -112,9 +112,17 @@ def buy(kite):
                                     squareoff=None,
                                     stoploss=None,
                                     trailing_stoploss=None,
-                                    tag="Rishan")
+                                    tag="bot")
                 print(f"Placed a buying order for {int((Funds//len(screened_stocks))//ltp)} shares of {i}- {order}")
                 telegram_send(f"Placed a buying order for {int((Funds//len(screened_stocks))//ltp)} shares of {i}- {order}")
+                with open(r"important_data\bought_by_bot.txt","r") as file:
+                    bought_by_bot = dict(eval(file.read()))
+                    if i not in bought_by_bot.keys():
+                        bought_by_bot[i]=int((Funds//len(screened_stocks))//ltp)
+                    if i in bought_by_bot.keys():
+                        bought_by_bot[i]+=int((Funds//len(screened_stocks))//ltp)
+                with open(r"important_data\bought_by_bot.txt","w") as file:
+                    file.write(str(bought_by_bot))
                 if len(screened_stocks)>1:
                     time.sleep(1)
         except ZeroDivisionError:

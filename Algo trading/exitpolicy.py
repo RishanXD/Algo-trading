@@ -7,20 +7,6 @@ from doublescreener import *
 from Screener import *
 from entrypolicy import *
 
-def ownings(kite):
-    final_ownings=[]
-    
-    # Get the current ownings of the user
-    for i in kite.holdings():
-        dict={}
-        dict["tradingsymbol"]=i["tradingsymbol"]
-        dict["quantity"]=i["quantity"]
-        dict["t1_quantity"]=i["t1_quantity"]
-        dict["average_price"]=i["average_price"]
-        dict["average_price"]=i["average_price"]
-        final_ownings.append(dict)
-    return final_ownings
-
 
 def sell(kite):
     stoploss=-15
@@ -36,7 +22,15 @@ def sell(kite):
             ltp = tick['last_price']
             ltp_dict[instrument_dict[instrument_token]] = ltp
 
-    net_holdings=ownings(kite=kite)
+    net_holdings=kite.holdings()
+    for i in net_holdings:
+        tradingsymbol=i["tradingsymbol"]
+        df=read_instruments_dataframe()
+        if tradingsymbol in list(df['tradingsymbol']):
+            pass
+        else:
+            # print(f"{tradingsymbol} is not listed on NSE")
+            net_holdings.remove(i)
 
     stock=[]
     for i in net_holdings:
@@ -66,8 +60,7 @@ def sell(kite):
     try:
 
 
-        Do_not_sell=["IDEA" , "GSPL"]
-        # Do_not_sell=[]
+        Do_not_sell=["AARNAV"]
 
 
 
@@ -77,9 +70,26 @@ def sell(kite):
             return None
         while True:
             print("Sell operation active")
-            net_holdings=ownings(kite=kite)
+            net_holdings=kite.holdings()
+            for i in net_holdings:
+                with open(r"important_data\bought_by_bot.txt","r") as file:
+                    bought_by_bot = file.read()
+                tradingsymbol=i["tradingsymbol"]
+                if tradingsymbol in list(df['tradingsymbol']):
+                    pass
+                else:
+                    # print(f"{tradingsymbol} is not listed on NSE")
+                    net_holdings.remove(i)
+                
+            for i in net_holdings:
+                if tradingsymbol not in bought_by_bot:
+                    net_holdings.remove(i)
+
+                    
             
             for i in net_holdings:
+    
+    
                 order_placed=False
                 tradingsymbol=i["tradingsymbol"]
 
@@ -87,7 +97,6 @@ def sell(kite):
                 if quantity==0:
                     quantity=i["t1_quantity"]
                 if quantity==0:
-                    time.sleep(30)
                     continue
 
                 if i['tradingsymbol'] in Do_not_sell:
@@ -96,6 +105,7 @@ def sell(kite):
                 net_positions=kite.positions()["net"]
 
                 for i in net_positions:
+                    quantity=0
                     order_placed=False
                     tradingsymbol=i['tradingsymbol']
                     for j in kite.orders():
@@ -129,7 +139,7 @@ def sell(kite):
                                 squareoff=None,
                                 stoploss=None,
                                 trailing_stoploss=None,
-                                tag="Rishan")
+                                tag="bot")
                             # order="test"
 
 
@@ -153,7 +163,7 @@ def sell(kite):
                                 squareoff=None,
                                 stoploss=None,
                                 trailing_stoploss=None,
-                                tag="Rishan"
+                                tag="bot"
                                 )
                             # order="test"
                             print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order} as its loss has crossed the stoploss value of {stoploss}%") 
@@ -172,11 +182,17 @@ def sell(kite):
 
 
 
-                if order_placed==False:
-                    daily=get_data(tradingsymbol,"Daily")
-                    hourly=get_data(stock_name=tradingsymbol,time="1h")
+                if order_placed==False and quantity>0:
+                    try:
+                        daily=get_data(tradingsymbol,"Daily")
+                        hourly=get_data(stock_name=tradingsymbol,time="1h")
+                    except Exception:
+                        # print(f"{tradingsymbol} is not listed on NSE")
+                        continue
+
                     if daily["RSI"]<50 and daily["close"] <= daily["EMA10"]: # type: ignore
                         if hourly["RSI"]<50 and hourly["close"] <= hourly["EMA10"]:  # type: ignore
+                            print(f"Selling {quantity} of {tradingsymbol}")
                         
                             order = kite.place_order(variety=kite.VARIETY_REGULAR,
                                         exchange=kite.EXCHANGE_NSE,
@@ -192,16 +208,15 @@ def sell(kite):
                                         squareoff=None,
                                         stoploss=None,
                                         trailing_stoploss=None,
-                                        tag="Rishan")
+                                        tag="bot")
                             # order="test"
-                            print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order}")
+                            print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order} as it met the exit conditions")
                             time.sleep(1)
             time.sleep(30)
     except KeyboardInterrupt:
         kws.unsubscribe([instrument_token])
 
-kite=kite_login()
-sell(kite=kite)
+
 
 
 

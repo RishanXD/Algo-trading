@@ -39,6 +39,7 @@ def is_market_open_wrapper(market_open):
     current_time = datetime.now().time()
     if market_open_time <= current_time <= market_close_time:
         market_open.value=is_market_open()
+        # market_open.value=True
     else:
         market_open.value=False
 
@@ -92,7 +93,7 @@ def main():
     # Create and start the market status process
     market_process = mp.Process(target=is_market_open_wrapper, args=(market_open,))
     market_process.start()
-
+    time.sleep(3)
     # Wait until the market is open before starting buy and sell processes
     while not market_open.value:
 
@@ -105,18 +106,38 @@ def main():
 
         print(f"\rWaiting for the market to open... {formatted_time} ", end='',flush=True)
         time.sleep(30)
+        is_market_open_wrapper(market_open=market_open)
+    print("\n")
+    print("\033[A\033[K", end="") # this code deletes previous printed line and prints the new line in place of it
 
     # Create and start buy and sell processes
     buy_process = mp.Process(target=buy_wrapper, args=(kite, market_open))
     sell_process = mp.Process(target=sell_wrapper, args=(kite, market_open))
     
-    buy_process.start()
+    # buy_process.start()
     sell_process.start()
 
     # Join processes
     market_process.join()
-    buy_process.join()
+    # buy_process.join()
     sell_process.join()
+
+    while market_open.value==True:
+        print("Checking if market was open")
+        was_market_open=None
+        if market_open.value==True and was_market_open==None:
+            was_market_open=True
+
+        if was_market_open==True and market_open.value==False:
+            market_process.terminate()
+            buy_process.terminate()
+            sell_process.terminate()
+            telegram_send("Market has been closed")
+            exit("Market has been closed.")
+            continue
+        time.sleep(5)
+    telegram_send("Market has been closed")
+    exit("Market has been closed.")
 
 if __name__ == "__main__":
     main()
