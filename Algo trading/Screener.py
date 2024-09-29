@@ -113,7 +113,7 @@ def screening():
     print("Getting data...")
     daily_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_DAY , symbols=Nifty)
     weekly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_WEEK , symbols=Nifty)
-    monthly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_MONTH , symbols=Nifty)\
+    monthly_all = get_multiple_analysis(screener="india", interval=Interval.INTERVAL_1_MONTH , symbols=Nifty)
     
     # print("\033[A\033[K", end="") # this code deletes previous printed line and prints the new line in place of it
     
