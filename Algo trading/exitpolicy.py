@@ -73,7 +73,7 @@ def sell(kite):
             net_holdings=kite.holdings()
             for i in net_holdings:
                 with open(r"important_data\bought_by_bot.txt","r") as file:
-                    bought_by_bot = file.read()
+                    bought_by_bot = eval(file.read())
                 tradingsymbol=i["tradingsymbol"]
                 if tradingsymbol in list(df['tradingsymbol']):
                     pass
@@ -82,7 +82,7 @@ def sell(kite):
                     net_holdings.remove(i)
                 
             for i in net_holdings:
-                if tradingsymbol not in bought_by_bot:
+                if tradingsymbol not in bought_by_bot or bought_by_bot[tradingsymbol]==0:
                     net_holdings.remove(i)
 
                     
@@ -98,6 +98,8 @@ def sell(kite):
                     quantity=i["t1_quantity"]
                 if quantity==0:
                     continue
+                if quantity>bought_by_bot[tradingsymbol]:
+                    quantity=bought_by_bot[tradingsymbol]
 
                 if i['tradingsymbol'] in Do_not_sell:
                     continue
@@ -145,6 +147,11 @@ def sell(kite):
 
                             print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order} as its profit has crossed the target profit of {target_profit}%")
                             time.sleep(1)
+                            bought_by_bot[tradingsymbol]-=quantity
+                            if bought_by_bot[tradingsymbol]==0:
+                                del bought_by_bot[tradingsymbol]
+                            with open(r"important_data\bought_by_bot.txt","w") as file:
+                                file.write(bought_by_bot)
                             continue
 
 
@@ -168,6 +175,12 @@ def sell(kite):
                             # order="test"
                             print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order} as its loss has crossed the stoploss value of {stoploss}%") 
                             time.sleep(1)
+                            bought_by_bot[tradingsymbol]-=quantity
+                            if bought_by_bot[tradingsymbol]==0:
+                                del bought_by_bot[tradingsymbol]
+                            with open(r"important_data\bought_by_bot.txt","w") as file:
+                                file.write(bought_by_bot)
+                            
                             continue     
 
 
@@ -212,6 +225,11 @@ def sell(kite):
                             # order="test"
                             print(f"Placed a selling order for {int(quantity)} shares of {tradingsymbol}- {order} as it met the exit conditions")
                             time.sleep(1)
+                            bought_by_bot[tradingsymbol]-=quantity
+                            if bought_by_bot[tradingsymbol]==0:
+                                del bought_by_bot[tradingsymbol]
+                            with open(r"important_data\bought_by_bot.txt","w")as file:
+                                file.write(bought_by_bot)
             time.sleep(30)
     except KeyboardInterrupt:
         kws.unsubscribe([instrument_token])

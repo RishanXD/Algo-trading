@@ -2,6 +2,7 @@ def chartink_screening(payload):
     import requests
     from bs4 import BeautifulSoup
     import json
+    import brotli
 
 
     # Step 1: Make a GET request to fetch the initial page where the CSRF token is provided
@@ -24,7 +25,8 @@ def chartink_screening(payload):
         csrf_token = soup.find("meta", attrs={"name": "csrf-token"})["content"]
         cookies=session.cookies.get_dict()
 
-    except TypeError:
+    except Exception as e:
+        print(f"Chartink CSRF token error: {e} , resolving it with the alternate method")
         csrf_refresh=session.get("https://chartink.com/csrf-token/refresh",headers=headers)
         csrf_token=(eval(csrf_refresh.text))["token"]
         cookies=session.cookies.get_dict()
