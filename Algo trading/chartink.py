@@ -1,4 +1,4 @@
-def chartink_screening(params):
+def chartink_screening(payload,chartink_remember_token):
     import requests
     from bs4 import BeautifulSoup
     import json
@@ -21,14 +21,18 @@ def chartink_screening(params):
         soup = BeautifulSoup(response.content, "html.parser")
         csrf_token = soup.find("meta", attrs={"name": "csrf-token"})["content"]
         cookies=session.cookies.get_dict()
-        cookies["remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d"]='''eyJpdiI6InBjTG5KemNNMVB1bW9LeFp0OUtBUXc9PSIsInZhbHVlIjoiY3RSaDVvMUk0b1Q1NzByTndtQ0gzV1FGV1NXUXZYRTNhWm03dWZMY0RacWJjbDBqeHJCcWk4YkMwTFgxcG5XUXhmck9zTUJDZjdWQldZNm5Ka0xwQU1FbkdUbWgzNDRaNXl5Z3k3dVdPYitQUHlIQnN1MmRiRWh1ejlmY01OdjV2MGpYaWw3MFZHZlZad2Y2RFNYbjNjWkx5ZS9rQU1CSHdHWGZ5TW1xY2RWa3U4QmFPemtuV3VjTFhCcHE4ZGR1RlhVeENyN3JQOTU3OWRzSG1VVklmc0RQemkvN1hDVW1VL0lRdFJqSzJFWT0iLCJtYWMiOiIwYTkzZGQ0NWUxN2M4NmUwMTg1ODIzMzhjY2M5OWUzY2RmODIxOWM0NTQ5NjYwNjMwZTU1OGM0NzlmN2U1MDhhIiwidGFnIjoiIn0%3D'''
+        cookies.update(chartink_remember_token)        
+        session.cookies.update(cookies)
+        
 
     except Exception as e:
         print(f"Chartink CSRF token error: {e} , resolving it with the alternate method")
         csrf_refresh=session.get("https://chartink.com/csrf-token/refresh",headers=headers)
         csrf_token=(eval(csrf_refresh.text))["token"]
         cookies=session.cookies.get_dict()
-        cookies['remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d']= 'eyJpdiI6IkpESnVoTFlHc3p2QWpxaE1MMjF2d0E9PSIsInZhbHVlIjoiVkZ4emNDNC9sTlAxRkt3M3A0dnoyOFNvRVdOSUl4aHNRNzlrY3BrQ2FaS1Q4aVRpNEw5b3VXTlBpMWEyMnUzRzRYbDg3TmZXZ0pXaDJibDFCbkVwUVZyTTBIakwyZVk3bnJIcERWOXZUMytTUGx5QXZKa1J6bWViQmRyK1BzZmh6ZVdSbUVRb2pWK0pTdis2S216RFdvQXp3UGs2NDJSUjVmVGdIVW80TUN4L1Nqcm00bGs1ZUdSeGQvR0R3ZWRZTGN0R3JYMktjQzJqbDd1NFRobC9SS2tMK2VRQ20rQ1R5MjlqWWdTeFp0VT0iLCJtYWMiOiJmZjk1YWU2NjI4MDIyY2JiNzhlYTM5ZmM5NGFmYjEyNzNiMTI4OTQ2MzQxNTU1ZTllZGFlODU4YTA1N2NmYjQyIiwidGFnIjoiIn0%3D'
+        cookies.update(chartink_remember_token)        
+        session.cookies.update(cookies)
+
 
 
 
@@ -46,7 +50,7 @@ def chartink_screening(params):
 
 
     # Make the POST request to /screener/process
-    response = session.post("https://chartink.com/screener/process", headers=headers, params=params, cookies=cookies)
+    response = session.post("https://chartink.com/screener/process", headers=headers, params=payload, cookies=cookies)
 
     # Check if the response is successful
     if response.status_code == 200:
