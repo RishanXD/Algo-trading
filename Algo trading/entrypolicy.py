@@ -68,7 +68,7 @@ def ltp_value(kite,stock):
     return (ltp_value_number)
 
 
-def buy(kite):
+def buy(kite,chartink_remember_token):
     global not_enough_funds
     not_enough_funds=[]
     Funds=kite.funds()["equity"]["available"]["live_balance"]

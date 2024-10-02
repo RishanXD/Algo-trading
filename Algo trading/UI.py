@@ -18,6 +18,7 @@ def get_enctocken():
 
 
 
+
     label=CTkLabel(master=app,
                 text="Enter the enctoken: ",
                 font=("Chiller",35),
@@ -36,6 +37,7 @@ def get_enctocken():
 
     def get_data_from_input_box():
         enctoken_var.set(entry.get())
+        app.destroy()
         app.quit()
 
 
