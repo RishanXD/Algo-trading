@@ -3,12 +3,14 @@ from Screener import *
 from exitpolicy import *
 from entrypolicy import *
 from testing import *
+from chartink_login import *
 import time
 import multiprocessing as mp #https://www.youtube.com/watch?v=GT10PnUFLlE
 from multiprocessing import Process, Queue
 import schedule #https://www.geeksforgeeks.org/python-schedule-library/
 from final_workflow import *
 import datetime
+
 
 def setup():
     """
@@ -17,6 +19,8 @@ def setup():
     try:
         global kite
         kite = kite_login()
+        global chartink_remember_token
+        chartink_remember_token=chartink_login()
         get_instruments_dataframe(kite=kite)
     except requests.exceptions.ConnectionError:
         print("Internet connection lost.")
