@@ -5,6 +5,7 @@ import internet
 import UI
 import telegram
 import requests
+import zerodha_login
 def kite_login():
     try:
         file=open(r"important_data\\enctoken.txt","r")
@@ -21,7 +22,7 @@ def kite_login():
         return kite
     elif kite.profile()==None:
         print("Failed to log into zerodha session using enctoken")
-        enctoken = UI.get_enctocken()
+        enctoken = zerodha_login.get_enctoken()
         kite=KiteApp(enctoken=enctoken)
         with open(r"important_data\\enctoken.txt","w") as file:
                 file.write(enctoken)
@@ -32,7 +33,6 @@ def kite_login():
         elif kite.profile()==None:
             print("Invalid Token, try to refresh the zerodha session")
             UI.errorbox("Invalid token, exiting the program")
-            telegram.telegram_send("The Enctocken Filled is wrong, exiting the program")
             exit()
     return kite
 
